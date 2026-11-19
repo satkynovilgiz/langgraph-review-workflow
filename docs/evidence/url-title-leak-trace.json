@@ -1,0 +1,48 @@
+{
+  "topic": "Explain step by step what happens when you type a URL into a browser and press Enter, covering DNS, TCP, TLS, HTTP and rendering, for beginners",
+  "model": "gemini-3.5-flash-lite",
+  "finished_at": "2026-11-19T04:37:14+00:00",
+  "final_status": "approved",
+  "rejections": 0,
+  "max_revisions": 2,
+  "final_scores": {
+    "accuracy": 5,
+    "clarity": 5,
+    "structure": 5,
+    "length": 5,
+    "example": 5
+  },
+  "steps": [
+    {
+      "node": "planner",
+      "outline": "# Title: What Happens When You Press Enter? A Beginner\u2019s Guide to the Web\n\n### 1. The Journey Begins: Typing the URL\n* Break down a URL into its core parts (protocol, domain name, path).\n* Explain that pressing \"Enter\" is simply sending a request to fetch a webpage from somewhere else on the internet.\n\n### 2. Finding the Address: DNS (Domain Name System)\n* Compare DNS to a phonebook that translates human-friendly names (like `google.com`) into computer-friendly IP addresses (like `192.0.2.1`).\n* Briefly mention how the browser checks its cache first before asking internet servers for directions.\n\n### 3. Making the Connection: TCP and TLS\n* Explain TCP as the establishment of a reliable, step-by-step communication handshake between your computer and the server.\n* Describe TLS (Transport Layer Security) as the process of locking the door and creating an encrypted, secure tunnel for safe data transfer (the \"HTTPS\" padlock).\n\n### 4. Ordering the Page: HTTP Request and Response\n* Explain HTTP as the common language used to ask the server for the website's files.\n* Describe the server's reply, which sends back the raw building blocks of the page (HTML, CSS, and JavaScript).\n\n### 5. Bringing It to Life: Rendering the Page\n* Walk through how the browser reads the raw HTML code like a blueprint.\n* Explain how it styles the elements, runs the scripts, and finally paints the fully assembled webpage onto your screen."
+    },
+    {
+      "node": "writer",
+      "attempt": 1,
+      "is_revision": false,
+      "word_count": 518,
+      "draft": "# Title: What Happens When You Press Enter? A Beginner\u2019s Guide to the Web\n\nHave you ever wondered what happens in the fraction of a second between pressing \"Enter\" on your keyboard and a website loading? It feels like magic, but it is actually a well-coordinated relay race. Let\u2019s trace the journey of a single web request using a concrete example: visiting `https://example.com/about`.\n\n### 1. The Journey Begins: Typing the URL\nFirst, let's look at the destination. A URL (Uniform Resource Locator) is just the web address. It has three main parts:\n* **Protocol (`https://`):** The set of rules for how data travels.\n* **Domain Name (`example.com`):** The human-friendly name of the website.\n* **Path (`/about`):** The specific page or file you want to see.\n\nWhen you type this address and press \"Enter,\" you are essentially sending a digital knock on a door, asking a remote computer to send a webpage to your screen.\n\n### 2. Finding the Address: DNS (Domain Name System)\nComputers don't understand names like `example.com`; they only understand **IP addresses** (Internet Protocol addresses), which are strings of numbers like `93.184.216.34` that act like geographic coordinates on the internet. \n\nTo find this number, your browser consults the **DNS (Domain Name System)**. You can think of DNS as the phonebook of the internet. First, your browser checks its own memory (cache) to see if it visited recently. If not, it asks a series of external DNS servers until it finds the correct IP address for `example.com`.\n\n### 3. Making the Connection: TCP and TLS\nNow that your computer knows the server's numerical address, it needs to open a reliable communication channel.\n* **TCP (Transmission Control Protocol):** This is a system that ensures packets of data aren't lost. Your computer and the server perform a quick \"handshake\"\u2014a series of hello messages\u2014to confirm both sides are ready to talk reliably.\n* **TLS (Transport Layer Security):** If the URL starts with `https`, your browser and the server will now establish a secure tunnel. TLS scrambles the data so that hackers cannot spy on what you are sending or receiving. This is the technology behind the padlock icon in your browser bar.\n\n### 4. Ordering the Page: HTTP Request and Response\nWith a secure, reliable connection open, your browser speaks **HTTP (Hypertext Transfer Protocol)**, the common language of the web. \nYour browser sends an HTTP request saying, \"Hello, please give me the `/about` file.\" The server processes this request and replies with an **HTTP response**. Inside this response are the raw ingredients of the webpage: **HTML** (the text and structure), **CSS** (the colors and layout), and **JavaScript** (the interactive features).\n\n### 5. Bringing It to Life: Rendering the Page\nFinally, your browser receives these raw building blocks and begins **rendering** (drawing) the page. \nIt reads the HTML code like a blueprint, building a structural map of the webpage. Then, it applies the CSS styles to make it look pretty and runs the JavaScript to add interactive buttons or animations. \n\nIn less than a second, all these steps happen behind the scenes, painting the fully assembled webpage right onto your screen."
+    },
+    {
+      "node": "reviewer",
+      "scores": {
+        "accuracy": 5,
+        "clarity": 5,
+        "structure": 5,
+        "length": 5,
+        "example": 5
+      },
+      "model_length_score": 5,
+      "model_said_passed": true,
+      "passed": true,
+      "decision": "approved",
+      "feedback": [],
+      "draft_word_count": 518
+    },
+    {
+      "node": "finaliser",
+      "final_status": "approved"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+Topic: Explain Kubernetes autoscaling for beginners
+[planner]   outline ready
+[writer]    first draft (attempt 1, 524 words)
+[reviewer]  accuracy=5 clarity=5 structure=5 length=5 example=5 -> PASS, decision: approved
+[finaliser] final status: approved
+Saved output/run1/final.md and output/run1/trace.json

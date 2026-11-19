@@ -1,0 +1,48 @@
+{
+  "topic": "Explain Kubernetes autoscaling for beginners",
+  "model": "gemini-3.5-flash-lite",
+  "finished_at": "2026-11-19T04:32:04+00:00",
+  "final_status": "approved",
+  "rejections": 0,
+  "max_revisions": 2,
+  "final_scores": {
+    "accuracy": 5,
+    "clarity": 5,
+    "structure": 5,
+    "length": 5,
+    "example": 5
+  },
+  "steps": [
+    {
+      "node": "planner",
+      "outline": "# Kubernetes Autoscaling Explained for Beginners\n\n## What is Kubernetes Autoscaling?\n- Define autoscaling as automatically adjusting computing resources based on demand.\n- Explain why it matters (saves money, prevents website crashes during traffic spikes).\n\n## The Core Concept: Pods and Nodes\n- Briefly explain \"Pods\" (running containers) and \"Nodes\" (the underlying servers).\n- Emphasize that autoscaling happens at two different levels: Pods and Nodes.\n\n## Horizontal Pod Autoscaler (HPA): The Traffic Cop\n- Explain HPA: automatically adding or removing Pods based on CPU or memory usage.\n- Use a simple analogy, like opening more checkout lanes when the grocery store gets busy.\n\n## Concrete Example: The Black Friday Sale Shop\n- Scenario: An online t-shirt shop normally runs on 2 Pods, but a sudden sale brings 10x the traffic.\n- HPA detects high CPU usage, automatically spins up 8 new Pods in minutes, and scales them back down when the sale ends.\n\n## Cluster Autoscaler: Managing the Underlying Servers\n- Explain what happens when you run out of physical server space (Nodes) for your new Pods.\n- Describe how the Cluster Autoscaler automatically requests new cloud servers to handle the load.\n\n## Summary and Key Takeaways\n- Recap that HPA scales the application (Pods) and Cluster Autoscaler scales the infrastructure (Nodes).\n- Reiterate that setting this up keeps applications reliable without manual babysitting."
+    },
+    {
+      "node": "writer",
+      "attempt": 1,
+      "is_revision": false,
+      "word_count": 524,
+      "draft": "# Kubernetes Autoscaling Explained for Beginners\n\n## What is Kubernetes Autoscaling?\nImagine running an online store where traffic constantly changes. Kubernetes autoscaling is a feature that automatically adjusts your computing resources\u2014like processing power and memory\u2014based on how much demand your application is currently experiencing. \n\nThis matters for two big reasons. First, it saves you money because you only pay for the computer power you actually use. Second, it prevents your website from crashing when a sudden wave of visitors arrives.\n\n## The Core Concept: Pods and Nodes\nTo understand how autoscaling works, you need to know about two basic Kubernetes building blocks:\n* **Pods:** The smallest deployable units in Kubernetes. Think of a Pod as a bubble containing a running instance of your application (like your website code).\n* **Nodes:** The underlying virtual or physical servers that actually host and run your Pods. \n\nKubernetes autoscaling happens at two entirely different levels: the application level (Pods) and the infrastructure level (Nodes).\n\n## Horizontal Pod Autoscaler (HPA): The Traffic Cop\nThe **Horizontal Pod Autoscaler (HPA)** is a tool that automatically adds or removes Pods based on metrics like CPU (processor) or memory usage. \n\nThink of it like a grocery store. Normally, only two checkout lanes are open. But when a sudden crowd of shoppers rushes in, the manager opens six more lanes to keep the line moving. Once the shoppers leave, those extra lanes close down. HPA does the exact same thing for your software.\n\n## Concrete Example: The Black Friday Sale Shop\nPicture an online t-shirt shop running on Kubernetes. On a normal Tuesday, the website is quiet and comfortably handles traffic using just two Pods. \n\nSuddenly, a Black Friday sale goes live, and ten times the usual number of shoppers flood the site. The CPU usage on those two Pods spikes to 95%. \n\nThe HPA notices this high strain. Within minutes, it automatically spins up eight new Pods to share the workload. Shoppers experience a fast, smooth checkout process. Two hours later, when the sale ends and traffic drops, the HPA automatically deletes the extra eight Pods, saving you money.\n\n## Cluster Autoscaler: Managing the Underlying Servers\nWhat happens if your traffic spikes so high that your Pods need more room, but your current physical or virtual servers (Nodes) are completely full? \n\nThat is when the **Cluster Autoscaler** steps in. While the HPA manages the number of application Pods, the Cluster Autoscaler manages the underlying servers. If new Pods cannot fit because the servers are out of space, the Cluster Autoscaler automatically requests a brand-new cloud server from your provider, waits for it to turn on, and lets the new Pods run on it. When traffic drops and servers sit empty, it turns them off to save costs.\n\n## Summary and Key Takeaways\nKubernetes autoscaling ensures your applications stay online and responsive without requiring manual babysitting. Just remember the two heroes of the system:\n1. **Horizontal Pod Autoscaler (HPA):** Scales your application (Pods) up and down based on traffic and resource usage.\n2. **Cluster Autoscaler:** Scales your infrastructure (Nodes) up and down to ensure there is always physical room for your Pods to run."
+    },
+    {
+      "node": "reviewer",
+      "scores": {
+        "accuracy": 5,
+        "clarity": 5,
+        "structure": 5,
+        "length": 5,
+        "example": 5
+      },
+      "model_length_score": 5,
+      "model_said_passed": true,
+      "passed": true,
+      "decision": "approved",
+      "feedback": [],
+      "draft_word_count": 524
+    },
+    {
+      "node": "finaliser",
+      "final_status": "approved"
+    }
+  ]
+}

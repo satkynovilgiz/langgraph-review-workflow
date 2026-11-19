@@ -1,0 +1,21 @@
+{
+  "node": "reviewer",
+  "scores": {
+    "accuracy": 2,
+    "clarity": 1,
+    "structure": 4,
+    "length": 5,
+    "example": 1
+  },
+  "model_length_score": 5,
+  "model_said_passed": false,
+  "passed": false,
+  "decision": "revising",
+  "feedback": [
+    "In the introduction, correct the false claim that the server sends its private key to the browser, as servers never transmit their private keys.",
+    "Explain technical terms like TLS, cipher suite, X.509 certificate, PKI, and AEAD in plain English since this is intended for absolute beginners.",
+    "Remove jargon-heavy paragraphs about OCSP, CRLs, HSTS, and TLS 1.3 details from the main sections or simplify them completely for a beginner audience.",
+    "Add at least one concrete, realistic example in the text, such as logging into an online bank account, to show how HTTPS protects user data in practice."
+  ],
+  "draft_word_count": 363
+}
