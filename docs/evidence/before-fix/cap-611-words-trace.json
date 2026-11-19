@@ -1,0 +1,47 @@
+{
+  "topic": "Explain the CAP theorem for beginners",
+  "model": "gemini-3.5-flash-lite",
+  "finished_at": "2026-11-19T04:30:42+00:00",
+  "final_status": "approved",
+  "rejections": 0,
+  "max_revisions": 2,
+  "final_scores": {
+    "accuracy": 5,
+    "clarity": 5,
+    "structure": 5,
+    "length": 5,
+    "example": 5
+  },
+  "steps": [
+    {
+      "node": "planner",
+      "outline": "# Demystifying the CAP Theorem: A Beginner's Guide\n\n## 1. What is the CAP Theorem?\n* Define the CAP theorem simply as a fundamental rule for distributed data systems.\n* Introduce the three letters: Consistency, Availability, and Partition Tolerance.\n\n## 2. Breaking Down the Three Letters\n* **Consistency:** Every read receives the most recent write or an error.\n* **Availability:** Every non-failing node returns a non-error response (without a guarantee it's the latest data).\n* **Partition Tolerance:** The system continues to function despite network communication drops between nodes.\n\n## 3. The \"Pick Two\" Dilemma\n* Explain why you can never have all three at the same time in a distributed system.\n* Clarify that network partitions (P) are inevitable in the real world, forcing a choice between Consistency (CP) and Availability (AP).\n\n## 4. Real-World Example: The Two-Server Bank Account\n* Imagine a banking app with servers in New York and Tokyo connected by the internet.\n* Show how a severed undersea cable (partition) forces the bank to either stop letting people withdraw money (choose Consistency) or let them withdraw money twice before the servers sync (choose Availability).\n\n## 5. Summary: Choosing Your Trade-off\n* Briefly contrast when to choose CP (e.g., banking, payment processing) vs. AP (e.g., social media likes, shopping cart previews).\n* Concluding thought on how modern databases are designed around these business needs."
+    },
+    {
+      "node": "writer",
+      "attempt": 1,
+      "is_revision": false,
+      "word_count": 611,
+      "draft": "# Demystifying the CAP Theorem: A Beginner's Guide\n\n## 1. What is the CAP Theorem?\nImagine running a digital service that is too big for a single computer, so you spread your data across multiple computers (called **nodes**) working together. This setup is known as a **distributed data system**. \n\nIn the year 2000, computer scientist Eric Brewer proposed a fundamental rule for these systems called the **CAP theorem**. It acts as a set of physical laws for database design, stating that a distributed system can only guarantee two out of three desirable properties at the exact same time: **C**onsistency, **A**vailability, and **P**artition Tolerance.\n\n## 2. Breaking Down the Three Letters\nTo understand the theorem, we need to look at what each letter represents:\n* **Consistency:** Imagine you update your profile picture. Every single read request across any node in the system will immediately receive that most recent write, or an error. No one sees outdated data.\n* **Availability:** Every non-failing node in the system always returns a non-error response to every request. However, there is a catch: the system does not guarantee that the returned data is the absolute latest version.\n* **Partition Tolerance:** A **network partition** is a real-world scenario where the network connection drops, splitting your servers into isolated groups that cannot talk to each other. Partition tolerance means the system continues to function and process requests despite these communication drops.\n\n## 3. The \"Pick Two\" Dilemma\nWhen building a distributed system, developers often say you can \"pick two\" out of C, A, and P. However, in the real world, network cables get cut, routers fail, and Wi-Fi drops. Because network partitions (P) are inevitable, you cannot simply opt-out of partition tolerance. \n\nTherefore, when a network partition actually happens, you are forced to make a hard architectural choice: do you sacrifice Consistency (yielding an **AP** system), or do you sacrifice Availability (yielding a **CP** system)? You can never have all three.\n\n## 4. Real-World Example: The Two-Server Bank Account\nTo see this in action, imagine a banking app with two servers: one in New York and one in Tokyo, connected by an undersea internet cable. A customer deposits $100 into their account via the New York server. Suddenly, a shark bites the undersea cable, creating a network partition. The New York and Tokyo servers can no longer talk to each other. \n\nNow, the customer tries to withdraw $100 from the Tokyo server. The bank must make a choice:\n* **Choose Consistency (CP):** The Tokyo server realizes it cannot check the latest balance with the New York server. To prevent the customer from withdrawing money they might not have, the Tokyo server blocks the transaction and returns an error. The system is consistent, but not available.\n* **Choose Availability (AP):** The Tokyo server lets the customer withdraw the $100 anyway, using its last known (and now outdated) balance. The system stays up and available, but it is no longer consistent because the two servers now hold conflicting financial records.\n\n## 5. Summary: Choosing Your Trade-off\nUltimately, choosing between CP and AP depends entirely on your business needs:\n* **Choose CP (Consistency + Partition Tolerance):** Best for systems where accuracy is vital. Think of banking, payment processing, and inventory management, where selling an item that is out of stock causes serious problems.\n* **Choose AP (Availability + Partition Tolerance):** Best for systems where uptime matters more than absolute real-time accuracy. Think of social media likes, video streaming, or shopping cart previews, where showing a slightly outdated count for a few seconds is harmless.\n\nModern database architects carefully weigh these trade-offs to ensure their systems align with what users care about most."
+    },
+    {
+      "node": "reviewer",
+      "scores": {
+        "accuracy": 5,
+        "clarity": 5,
+        "structure": 5,
+        "length": 5,
+        "example": 5
+      },
+      "model_said_passed": true,
+      "passed": true,
+      "decision": "approved",
+      "feedback": [],
+      "draft_word_count": 611
+    },
+    {
+      "node": "finaliser",
+      "final_status": "approved"
+    }
+  ]
+}

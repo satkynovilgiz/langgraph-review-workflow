@@ -1,0 +1,47 @@
+{
+  "topic": "Explain how DNS works for beginners",
+  "model": "gemini-3.5-flash-lite",
+  "finished_at": "2026-11-19T04:30:41+00:00",
+  "final_status": "approved",
+  "rejections": 0,
+  "max_revisions": 2,
+  "final_scores": {
+    "accuracy": 5,
+    "clarity": 5,
+    "structure": 5,
+    "length": 5,
+    "example": 5
+  },
+  "steps": [
+    {
+      "node": "planner",
+      "outline": "# The Phonebook of the Internet: How DNS Works\n\n## What is DNS and Why Do We Need It?\n- Explain that DNS stands for Domain Name System and acts as the internet's phonebook.\n- Contrast easy-to-remember domain names (like google.com) with hard-to-remember IP addresses (like 142.250.190.46).\n\n## The Four Key Players in a DNS Lookup\n- Introduce the recursive resolver (the librarian searching for the book).\n- Briefly mention root nameservers, TLD nameservers (.com, .org), and authoritative nameservers (the final source of truth).\n\n## Step-by-Step: What Happens When You Hit Enter\n- Walk through typing a URL in the browser and checking the local cache first.\n- Describe the query traveling up the hierarchy to find the correct IP address and returning it to your device.\n\n## A Real-World Example: Visiting \"example.com\"\n- Trace the journey of typing `example.com` from your laptop.\n- Show how your computer asks the resolver, gets guided through the `.com` TLD, and receives the final IP address to load the webpage in milliseconds.\n\n## Why Speed Matters: Caching\n- Explain that DNS lookups are cached at various levels (your computer, your router, your ISP) so you don't have to repeat the search every time.\n- Mention how this makes browsing the web fast and seamless."
+    },
+    {
+      "node": "writer",
+      "attempt": 1,
+      "is_revision": false,
+      "word_count": 605,
+      "draft": "# The Phonebook of the Internet: How DNS Works\n\n## What is DNS and Why Do We Need It?\nImagine trying to call a friend without saving their phone number. You would have to memorize a long string of random digits. The internet works the exact same way. \n\nEvery device connected to the internet\u2014from your smartphone to massive web servers\u2014has a unique numerical address called an **IP address** (short for Internet Protocol address), which looks something like `142.250.190.46`. Because humans are terrible at memorizing strings of numbers, we use human-readable web addresses like `google.com`. \n\nEnter **DNS**, which stands for **Domain Name System**. DNS is the invisible system that acts as the phonebook of the internet, translating the website names you type into the numerical IP addresses that computers use to talk to each other.\n\n## The Four Key Players in a DNS Lookup\nWhen you request a website, a digital relay race happens behind the scenes. Four main actors make this happen:\n\n- **Recursive Resolver:** Think of this as a helpful librarian. When you ask for a website, the resolver takes your request, goes out to search the internet, and brings the answer back to you.\n- **Root Nameservers:** The ultimate starting point. There are 13 sets of these massive servers worldwide that direct queries to the right neighborhood.\n- **TLD Nameservers:** TLD stands for **Top-Level Domain**. These servers manage specific website endings, such as `.com`, `.org`, or `.net`.\n- **Authoritative Nameservers:** The final source of truth. These are the servers that hold the actual IP address for a specific domain name.\n\n## Step-by-Step: What Happens When You Hit Enter\nWhen you type a web address into your browser and press Enter, your computer kicks off a quick search:\n\n1. **Local Check:** Your computer first checks its own memory (called a cache) to see if it has visited this website recently. If it remembers the IP address, it loads the page instantly.\n2. **The Resolver:** If your computer doesn't know the address, it asks your **Internet Service Provider (ISP)**, which provides your recursive resolver.\n3. **The Hierarchy Search:** The resolver asks the root server, gets pointed to the TLD server (like `.com`), and is finally directed to the authoritative nameserver for the exact IP address.\n4. **The Hand-off:** The resolver hands that IP address back to your device, and your browser loads the page.\n\n## A Real-World Example: Visiting \"example.com\"\nLet's trace what happens when you type `example.com` on your laptop. \n\nFirst, your laptop asks your recursive resolver for the IP address of `example.com`. The resolver checks its notes and asks a root nameserver, *\"Where can I find .com?\"* The root server points it to the `.com` TLD nameserver. \n\nNext, the resolver asks the `.com` TLD server, *\"Where is example.com?\"* That server points the resolver to the authoritative nameserver specifically responsible for `example.com`. \n\nFinally, the resolver asks that authoritative server for the exact address. The server replies with `93.184.215.14`. Your resolver delivers this number to your laptop, and your browser connects to that IP address, loading the webpage in a mere fraction of a second.\n\n## Why Speed Matters: Caching\nIf your computer had to go through this entire multi-step process every single time you clicked a link, the internet would feel painfully slow. \n\nTo prevent this, DNS uses **caching**, which is the process of saving information temporarily. Your computer, your home router, and your internet provider all store (cache) DNS answers for a set amount of time. Once you visit a site, its IP address is remembered nearby. Thanks to caching, subsequent visits happen almost instantly, making your daily web browsing fast and seamless."
+    },
+    {
+      "node": "reviewer",
+      "scores": {
+        "accuracy": 5,
+        "clarity": 5,
+        "structure": 5,
+        "length": 5,
+        "example": 5
+      },
+      "model_said_passed": true,
+      "passed": true,
+      "decision": "approved",
+      "feedback": [],
+      "draft_word_count": 605
+    },
+    {
+      "node": "finaliser",
+      "final_status": "approved"
+    }
+  ]
+}
