@@ -46,17 +46,24 @@ REVIEWER = """You are a strict editor reviewing a beginner-friendly technical ex
 
 Topic: {topic}
 
-Draft:
+Draft ({words} words, counted by code - trust this number):
 ---
 {draft}
 ---
 
-Score each checklist item from 1 (bad) to 5 (excellent):
-- accuracy: facts are correct and nothing is misleading.
-- clarity: a complete beginner can follow it; all jargon is explained.
+Score each checklist item from 1 to 5:
+- accuracy: facts are correct and nothing is misleading or oversimplified into a falsehood.
+- clarity: a complete beginner can follow it; every term is explained the first time it appears.
 - structure: clear title, short intro, logical sections, short conclusion.
 - length: 5 if the draft is 300-600 words; lower it the further outside that range.
 - example: includes at least one concrete, realistic example.
+
+What the scores mean:
+5 = nothing at all to improve. 4 = good, one small fix. 3 = a real problem a beginner would notice.
+2 = several problems. 1 = missing or wrong.
+Read the draft as a beginner who has never heard of the topic. Look for unexplained
+terms, claims that are wrong or misleading, and sections that jump ahead. Do not give 5
+by default: a 5 means you looked for problems and found none.
 
 Set passed=true only if EVERY score is 4 or higher.
 For every score below 5, add one specific, actionable feedback item

@@ -12,6 +12,7 @@ from langchain_core.messages import AIMessage
 from pydantic import ValidationError
 
 from workflow.__main__ import run
+from workflow.nodes import length_check
 from workflow.graph import build_graph, initial_state, route_after_review
 from workflow.state import MAX_REVISIONS, ChecklistScores, Review, WorkflowState
 
@@ -27,15 +28,17 @@ class FakeLLM:
     """Stands in for Gemini. Text calls return scripted strings; the
     reviewer's structured calls return scripted Review objects."""
 
-    def __init__(self, reviews: list[Review]):
+    def __init__(self, reviews: list[Review], draft_words: int = 400):
         self.reviews = list(reviews)
+        self.draft_words = draft_words  # length of each fake draft
         self.prompts: list[str] = []
         self.text_calls = 0
 
     def invoke(self, prompt: str) -> AIMessage:
         self.prompts.append(prompt)
         self.text_calls += 1
-        return AIMessage(content=f"# Title\n\nfake text number {self.text_calls}")
+        body = " ".join(["word"] * (self.draft_words - 4))
+        return AIMessage(content=f"# Title\n\nfake text {self.text_calls} {body}")
 
     def with_structured_output(self, schema):
         fake = self
@@ -48,8 +51,8 @@ class FakeLLM:
         return Structured()
 
 
-def run_graph(reviews: list[Review]) -> tuple[dict, FakeLLM]:
-    llm = FakeLLM(reviews)
+def run_graph(reviews: list[Review], draft_words: int = 400) -> tuple[dict, FakeLLM]:
+    llm = FakeLLM(reviews, draft_words)
     final_state = build_graph(llm).invoke(initial_state("Explain DNS for beginners"))
     return final_state, llm
 
@@ -136,3 +139,21 @@ def test_cli_run_writes_final_and_trace(tmp_path, capsys):
     assert (tmp_path / "final.md").read_text().startswith("# Title")
     printed = capsys.readouterr().out
     assert "[reviewer]" in printed and "decision: revising" in printed
+
+
+def test_length_check_scores_word_counts():
+    assert length_check(450) == (5, None)
+    assert length_check(300)[0] == 5 and length_check(600)[0] == 5
+    score, fix = length_check(611)  # a real draft the LLM reviewer wrongly gave 5
+    assert score == 3 and "Cut at least 11 words" in fix
+    assert length_check(120)[0] == 1
+
+
+def test_code_overrides_llm_length_score():
+    """LLM says length=5, but the draft is 700 words -> code rejects it."""
+    state, _ = run_graph([review(GOOD), review(GOOD)], draft_words=700)
+    first_review = state["history"][2]
+    assert first_review["model_length_score"] == 5
+    assert first_review["scores"]["length"] == 2
+    assert first_review["passed"] is False
+    assert "the limit is 600. Cut at least" in first_review["feedback"][0]

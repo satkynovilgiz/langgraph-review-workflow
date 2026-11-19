@@ -13,8 +13,32 @@ from .llm import text_of
 from .state import MAX_REVISIONS, PASS_SCORE, Review, WorkflowState
 
 
+MIN_WORDS, MAX_WORDS = 300, 600
+
+
 def word_count(text: str) -> int:
     return len(text.split())
+
+
+def length_check(words: int) -> tuple[int, str | None]:
+    """Score the length in CODE, not by the LLM.
+
+    Real runs showed the LLM reviewer gave length=5 to 605- and 611-word
+    drafts: language models can't reliably count words. Counting is easy
+    for code, so code is the source of truth for this checklist item.
+    Returns (score, feedback or None).
+    """
+    if MIN_WORDS <= words <= MAX_WORDS:
+        return 5, None
+    if words > MAX_WORDS:
+        off = words - MAX_WORDS
+        fix = f"The draft is {words} words; the limit is {MAX_WORDS}. Cut at least {off} words."
+    else:
+        off = MIN_WORDS - words
+        fix = f"The draft is {words} words; the minimum is {MIN_WORDS}. Add at least {off} words."
+    # Slightly outside (within 10%) -> 3; further outside -> 2 or 1. All fail.
+    score = 3 if off <= 60 else 2 if off <= 150 else 1
+    return score, fix
 
 
 def decide(review: Review, revision_count: int) -> tuple[bool, str]:
@@ -76,9 +100,16 @@ def make_nodes(llm):
         }
 
     def reviewer(state: WorkflowState) -> dict:
+        words = word_count(state["draft"])
         review: Review = reviewer_llm.invoke(
-            prompts.REVIEWER.format(topic=state["topic"], draft=state["draft"])
+            prompts.REVIEWER.format(topic=state["topic"], draft=state["draft"], words=words)
         )
+        # Override the LLM's length score with the code-counted one.
+        model_length_score = review.scores.length
+        review.scores.length, length_fix = length_check(words)
+        if length_fix:
+            review.feedback = [length_fix] + review.feedback
+
         rejections = state["revision_count"]
         passed, status = decide(review, rejections + 1)
         if not passed:
@@ -92,11 +123,12 @@ def make_nodes(llm):
             "history": [{
                 "node": "reviewer",
                 "scores": scores,
+                "model_length_score": model_length_score,  # what the LLM guessed
                 "model_said_passed": review.passed,  # kept to spot disagreements
                 "passed": passed,
                 "decision": status,
                 "feedback": review.feedback,
-                "draft_word_count": word_count(state["draft"]),
+                "draft_word_count": words,
             }],
         }
 
