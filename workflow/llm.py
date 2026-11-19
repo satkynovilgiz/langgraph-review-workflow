@@ -33,7 +33,6 @@ def get_llm() -> ChatGoogleGenerativeAI:
         model=model_name(),
         timeout=TIMEOUT_SECONDS,
         max_retries=MAX_RETRIES,
-        temperature=0.4,
     )
 
 
