@@ -108,6 +108,9 @@ a Python object.
 model can say "pass" while also giving a 3. Both values are saved in the trace, so you can see
 when they disagree.
 
+**The `length` score is also set by code.** The code counts the words and overrides whatever the
+LLM guessed, because real runs showed it can't count (see "The failure mode I found").
+
 The conditional edge (`route_after_review` in [`workflow/graph.py`](workflow/graph.py)) then picks
 the next node:
 
@@ -160,14 +163,125 @@ API key is needed.
 | `test_scores_outside_1_to_5_are_rejected` | a score of 6 fails validation |
 | `test_routing_function` | the conditional edge maps each status to the right node |
 | `test_cli_run_writes_final_and_trace` | the CLI prints steps and writes both output files |
+| `test_length_check_scores_word_counts` | 300–600 words scores 5; 611 words scores 3 with "Cut at least 11 words" |
+| `test_code_overrides_llm_length_score` | LLM says length=5 for a 700-word draft, and the code rejects it |
 
 ## Example runs
 
-TODO: real runs not done yet (they need a `GOOGLE_API_KEY`). Only real output will go here.
+Both runs are **real, unedited output** from `gemini-3.5-flash-lite` on 2026-11-18, after the
+length fix described below.
+
+### Example 1: "Explain Kubernetes autoscaling for beginners"
+
+Full output is committed in [`output/example/`](output/example/): `final.md`, `trace.json` and
+`console.txt`.
+
+```
+$ python -m workflow "Explain Kubernetes autoscaling for beginners"
+Topic: Explain Kubernetes autoscaling for beginners
+
+[planner]   outline ready
+[writer]    first draft (attempt 1, 524 words)
+[reviewer]  accuracy=5 clarity=5 structure=5 length=5 example=5 -> PASS, decision: approved
+[finaliser] final status: approved
+```
+
+The planner's outline had 5 sections, including "Concrete Example: The Black Friday Sale Shop".
+The final article starts:
+
+> # Kubernetes Autoscaling Explained for Beginners
+> ## What is Kubernetes Autoscaling?
+> Imagine running an online store where traffic constantly changes. Kubernetes autoscaling is a
+> feature that automatically adjusts your computing resources—like processing power and memory—based
+> on how much demand your application is currently experiencing. …
+
+### Example 2: "Explain step by step what happens when you type a URL into a browser and press Enter, covering DNS, TCP, TLS, HTTP and rendering, for beginners"
+
+```
+[planner]   outline ready
+[writer]    first draft (attempt 1, 518 words)
+[reviewer]  accuracy=5 clarity=5 structure=5 length=5 example=5 -> PASS, decision: approved
+[finaliser] final status: approved
+```
+
+The article starts with:
+
+> # Title: What Happens When You Press Enter? A Beginner's Guide to the Web
+
+Note the literal **"Title:"** in the heading. The planner's outline label leaked into the article,
+and the reviewer still gave `structure=5`. That is part of the failure mode below. Trace:
+[`docs/evidence/url-title-leak-trace.json`](docs/evidence/url-title-leak-trace.json).
+
+### What about the revise and reject-twice paths?
+
+In all of my real runs the reviewer approved the first draft, so **the revise loop never ran with
+the real model**. I am not going to invent output for it. The paths are covered two ways:
+- **Tests**: `test_revise_once_then_approve` and `test_reject_twice_needs_human_review` run the
+  real graph with a fake LLM.
+- **A real reviewer rejection**: [`scripts/probe_reviewer.py`](scripts/probe_reviewer.py) sends the
+  real reviewer a deliberately bad HTTPS draft (it contains a false fact and unexplained jargon, and
+  has no example). The real Gemini reply
+  ([`docs/evidence/reviewer-probe-output.json`](docs/evidence/reviewer-probe-output.json)) was
+  `accuracy=2 clarity=1 structure=4 length=5 example=1 -> decision: revising`, with feedback such as
+  *"correct the false claim that the server sends its private key to the browser, as servers never
+  transmit their private keys."*
 
 ## The failure mode I found
 
-TODO: will be written after 5+ real runs on different topics.
+**Run log:** 7 topics before the fix (Kubernetes autoscaling, DNS, public-key cryptography, Git
+rebase vs merge, vector databases, CAP theorem, HTTPS), the same 7 again after the fix, plus the
+"type a URL" topic. That makes 15 completed real reviews.
+
+### The problem: the reviewer was a rubber stamp
+
+**Every one of the 15 real reviews scored 5/5/5/5/5 with an empty feedback list.** The scores never
+varied, so the reviewer was not telling drafts apart. Two cases show this is a real bug and not
+just "the drafts were perfect":
+
+1. **It could not count words.** Before the fix, the DNS draft was **605 words** and the CAP
+   theorem draft was **611 words**. Both break the 300–600 rule, and both got `length=5` and were
+   approved. Traces:
+   [`dns-605-words-trace.json`](docs/evidence/before-fix/dns-605-words-trace.json),
+   [`cap-611-words-trace.json`](docs/evidence/before-fix/cap-611-words-trace.json).
+2. **It missed a visible formatting bug.** The "type a URL" article's heading is
+   `# Title: What Happens…`, and it still got `structure=5`.
+
+To check that the reviewer wasn't simply broken, I gave it a deliberately bad draft (see above).
+It did reject that draft with good, specific feedback. So the honest conclusion is: **the reviewer
+catches clearly broken drafts, but it can't grade a decent one.** It gives 5 to anything
+reasonable, and it can't measure things like word count.
+
+One likely reason is that the same model writes **and** reviews, and a model tends to like text
+that sounds like its own writing.
+
+### How I fixed it
+
+- **Objective checks moved into code.** `length_check()` in [`workflow/nodes.py`](workflow/nodes.py)
+  counts the words and **overrides** the LLM's length score. If the draft is out of range, it adds
+  exact feedback such as *"The draft is 611 words; the limit is 600. Cut at least 11 words."* The
+  LLM's own guess is still saved as `model_length_score` in the trace, so you can see when it was
+  wrong. Test: `test_code_overrides_llm_length_score`. This fully fixes the word-count part.
+- **The reviewer is told the word count** and given a clear meaning for each score (5 = "you
+  looked for problems and found none").
+- **I also tried a stricter prompt.** It did not help on its own: the 7 runs after the fix
+  still all scored 5s. I'm reporting that honestly rather than claiming the prompt fixed it.
+
+### What I would do next
+
+- **Move more checks into code**: for example, the title must start with `# ` and must not contain
+  "Title:", and there must be at least 3 `##` sections. Anything a rule can check, the LLM
+  shouldn't be guessing.
+- **Use a different, stronger model for the reviewer** (e.g. a separate `GEMINI_REVIEWER_MODEL`),
+  so the writer isn't marking its own homework.
+- **Ask for evidence before the score**: make the reviewer quote one weak sentence per checklist
+  item before scoring it, which pushes it to actually look.
+- **Keep `scripts/probe_reviewer.py` as a regression check**: a reviewer that stops rejecting the
+  known-bad draft is broken.
+
+**Side note (a second, smaller problem):** when I first ran 6 topics in parallel, one crashed with
+`429 RESOURCE_EXHAUSTED`. The free tier allows 15 requests per minute for this model, and each run
+makes 3–5 calls. The 2-retry cap correctly stopped it from hanging, but it cannot wait out a
+per-minute quota. So run topics one at a time, or add a pause between runs.
 
 ## Project layout
 
@@ -180,7 +294,8 @@ workflow/
   graph.py      wires nodes together, including the conditional edge
   __main__.py   CLI: live step printing, saves final.md + trace.json
 tests/          fake-LLM tests
-scripts/        diagram export, API-key check (also installed as a pre-commit hook)
-docs/           graph.png, graph.mmd
+scripts/        diagram export, reviewer probe, API-key check (install as a pre-commit hook:
+                cp scripts/check_no_keys.sh .git/hooks/pre-commit)
+docs/           graph.png, graph.mmd, evidence/ (real traces used in the failure-mode section)
 output/example/ one committed example run
 ```
